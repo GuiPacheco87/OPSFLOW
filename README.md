@@ -2,6 +2,8 @@
 
 SaaS multi-tenant para desenhar, executar e auditar processos internos.
 
+O OpsFlow transforma solicitações informais — e-mails, planilhas e mensagens — em fluxos padronizados com responsáveis, aprovações, prazos, rastreabilidade e indicadores. O produto atende processos como onboarding e offboarding, acessos, compras, férias, reembolsos, chamados internos e aprovações financeiras.
+
 **Demo:** https://opsflow-ebon.vercel.app
 
 **API:** https://opsflow-api-x066.onrender.com/docs
@@ -9,6 +11,15 @@ SaaS multi-tenant para desenhar, executar e auditar processos internos.
 > A API usa o plano gratuito do Render e pode levar até um minuto para responder ao primeiro acesso após um período de inatividade.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-111827) ![FastAPI](https://img.shields.io/badge/FastAPI-Python-059669) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-2563eb) ![Docker](https://img.shields.io/badge/Docker-Compose-0284c7)
+
+## Documentação
+
+- [Visão do produto e funcionalidades](docs/product.md)
+- [Arquitetura técnica](docs/architecture.md)
+- [Modelo de dados](docs/database.md)
+- [API e regras de negócio](docs/api.md)
+- [Segurança e multi-tenancy](docs/security.md)
+- [Roadmap do produto](docs/roadmap.md)
 
 ## MVP implementado
 
@@ -51,3 +62,11 @@ Sem Docker: o backend usa SQLite por padrão. Rode `pip install -e ".[dev]"` e `
 ## Roadmap
 
 OAuth Microsoft/Google, webhooks, notificações, templates de processo, anexos em S3 e camada analítica Bronze/Silver/Gold.
+
+## Status do projeto
+
+MVP funcional e publicado para fins de demonstração e portfólio. A infraestrutura gratuita não possui SLA de produção: o backend pode entrar em suspensão após inatividade e levar aproximadamente um minuto para responder ao primeiro acesso.
+
+## Licença
+
+Projeto de portfólio. Consulte o autor antes de utilizar comercialmente.
