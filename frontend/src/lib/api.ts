@@ -1,0 +1,2 @@
+const BASE=process.env.NEXT_PUBLIC_API_URL||"http://localhost:8000/api/v1";
+export async function api<T>(path:string,init:RequestInit={}):Promise<T>{const token=typeof window!=="undefined"?localStorage.getItem("opsflow_token"):null;const r=await fetch(BASE+path,{...init,headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})}});if(!r.ok)throw new Error((await r.json()).detail||"Erro");return r.json()}
