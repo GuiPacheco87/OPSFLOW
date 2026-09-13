@@ -12,6 +12,103 @@ O OpsFlow transforma solicitações informais — e-mails, planilhas e mensagens
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-111827) ![FastAPI](https://img.shields.io/badge/FastAPI-Python-059669) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-2563eb) ![Docker](https://img.shields.io/badge/Docker-Compose-0284c7)
 
+## Para recrutadores
+
+O OpsFlow é um projeto full stack construído para demonstrar competências de **Software Engineering**, **Backend Python**, **Cloud/DevOps** e fundamentos de **Data Engineering** em um cenário corporativo real.
+
+Em poucos minutos é possível avaliar:
+
+- modelagem de um SaaS multi-tenant;
+- autenticação JWT, autorização RBAC e isolamento de dados;
+- regras de negócio para workflows e aprovações sequenciais;
+- API REST documentada com Swagger/OpenAPI;
+- frontend responsivo integrado à API;
+- persistência PostgreSQL e processamento assíncrono com Redis/Celery;
+- containers, configuração por ambiente, testes automatizados e CI/CD;
+- implantação real com Vercel, Render e Neon.
+
+### Links rápidos
+
+| Recurso | Link |
+|---|---|
+| Aplicação pública | [Abrir OpsFlow](https://opsflow-ebon.vercel.app) |
+| Demonstração sem cadastro | Clique em **Explorar demonstração** na página inicial |
+| Documentação interativa da API | [Abrir Swagger](https://opsflow-api-x066.onrender.com/docs) |
+| Health check | [Consultar API](https://opsflow-api-x066.onrender.com/health) |
+| Especificação funcional | [Ler visão do produto](docs/product.md) |
+| Arquitetura e decisões técnicas | [Ler arquitetura](docs/architecture.md) |
+
+> A API utiliza hospedagem gratuita e pode levar cerca de um minuto para despertar após um período sem acessos.
+
+## Visão geral da solução
+
+```mermaid
+flowchart LR
+    U[Usuário] --> F[Next.js<br/>Vercel]
+    F --> A[FastAPI<br/>Render]
+    A --> P[(PostgreSQL<br/>Neon)]
+    A -. ambiente local .-> R[(Redis)]
+    R -. filas .-> C[Celery Worker]
+    G[GitHub Actions] --> T[Testes e lint]
+    G --> B[Build do frontend]
+```
+
+### Fluxo de negócio demonstrado
+
+```mermaid
+flowchart TD
+    RH[RH inicia onboarding] --> G[Gestor avalia]
+    G -->|Aprova| TI[TI prepara equipamento e acessos]
+    G -->|Reprova| X[Processo encerrado]
+    TI --> C[RH confirma conclusão]
+    C --> F[Processo concluído]
+```
+
+## Principais desafios resolvidos
+
+### Multi-tenancy
+
+Uma organização nunca recebe dados de outra. O tenant é extraído do JWT validado e aplicado nas consultas do servidor, em vez de ser aceito como um parâmetro confiável do frontend.
+
+### Integridade do workflow
+
+Somente workflows ativos e com etapas podem ser executados. As tarefas avançam em ordem, uma decisão não pode ser repetida e uma reprovação encerra o processo.
+
+### Segregação de funções
+
+O solicitante não pode aprovar a própria solicitação. Cada etapa define um perfil responsável, e apenas esse perfil ou um administrador pode tomar a decisão.
+
+### Operação e rastreabilidade
+
+Prazos são calculados com base no SLA de cada etapa. Eventos importantes geram registros de auditoria, permitindo reconstruir o histórico de uma execução.
+
+## Competências demonstradas
+
+| Área | Implementação |
+|---|---|
+| Backend | Python, FastAPI, Pydantic, SQLAlchemy e arquitetura em serviços |
+| Frontend | Next.js, React, TypeScript, Tailwind CSS e consumo de API REST |
+| Dados | PostgreSQL, modelagem relacional, métricas operacionais e tenant isolation |
+| Segurança | JWT, Argon2, RBAC, CORS, secrets por ambiente e audit log |
+| Assíncrono | Redis e Celery para verificação de SLAs no ambiente completo |
+| Qualidade | Pytest, Ruff, type checking, build de produção e GitHub Actions |
+| Infraestrutura | Docker, Docker Compose, Vercel, Render e Neon |
+
+## Estrutura do monorepo
+
+```text
+OPSFLOW/
+├── frontend/              # Next.js, TypeScript e Tailwind
+├── backend/
+│   ├── app/               # API, modelos, segurança e regras de negócio
+│   └── tests/             # testes automatizados
+├── docs/                  # produto, arquitetura, dados, API e segurança
+├── .github/workflows/     # pipeline de integração contínua
+├── docker-compose.yml     # ambiente completo local
+├── render.yaml            # infraestrutura gratuita da API
+└── .env.example           # contrato das variáveis de ambiente
+```
+
 ## Documentação
 
 - [Visão do produto e funcionalidades](docs/product.md)
