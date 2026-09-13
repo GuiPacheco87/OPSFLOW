@@ -23,6 +23,10 @@ def tenant(db,model,user,obj_id):
 def create_task(db,org_id,execution_id,step):
     assignee=db.scalar(select(m.User).where(m.User.organization_id==org_id,m.User.role==step.assigned_role,m.User.active.is_(True)).order_by(m.User.created_at))
     task=m.Task(organization_id=org_id,execution_id=execution_id,workflow_step_id=step.id,assigned_to=assignee.id if assignee else None,assigned_role=step.assigned_role,due_at=datetime.now(timezone.utc)+timedelta(hours=step.sla_hours)); db.add(task)
+def mark_overdue(db:Session,organization_id:str):
+    tasks=db.scalars(select(m.Task).where(m.Task.organization_id==organization_id,m.Task.status==m.TaskStatus.pending,m.Task.due_at<datetime.now(timezone.utc))).all()
+    for task in tasks: task.status=m.TaskStatus.overdue
+    if tasks: db.commit()
 def start_execution(db,user,data):
     workflow=tenant(db,m.Workflow,user,data.workflow_id)
     if workflow.status!=m.WorkflowStatus.active: raise HTTPException(409,"Somente workflows ativos podem ser executados")
@@ -41,4 +45,3 @@ def decide(db,user,task_id,status,comment):
         if next_step: create_task(db,user.organization_id,execution.id,next_step)
         else: execution.status=m.ExecutionStatus.completed; execution.completed_at=datetime.now(timezone.utc)
     audit(db,user,status.value,"task",task.id,{"comment":comment}); db.commit(); return task
-

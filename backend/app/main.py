@@ -47,6 +47,7 @@ def start(data:s.ExecutionCreate,user:m.User=Depends(current_user),db:Session=De
 def executions(user:m.User=Depends(current_user),db:Session=Depends(get_db)): return db.scalars(select(m.WorkflowExecution).where(m.WorkflowExecution.organization_id==user.organization_id).order_by(m.WorkflowExecution.started_at.desc())).all()
 @app.get(A+"/tasks",response_model=list[s.TaskOut])
 def tasks(user:m.User=Depends(current_user),db:Session=Depends(get_db)):
+    services.mark_overdue(db,user.organization_id)
     q=select(m.Task).where(m.Task.organization_id==user.organization_id)
     if user.role!=m.Role.admin: q=q.where((m.Task.assigned_to==user.id)|(m.Task.assigned_role==user.role))
     return db.scalars(q.order_by(m.Task.due_at)).all()
@@ -58,6 +59,6 @@ def reject(task_id:str,data:s.Decision,user:m.User=Depends(current_user),db:Sess
 def logs(user:m.User=Depends(require(m.Role.admin,m.Role.manager)),db:Session=Depends(get_db)): return db.scalars(select(m.AuditLog).where(m.AuditLog.organization_id==user.organization_id).order_by(m.AuditLog.created_at.desc()).limit(100)).all()
 @app.get(A+"/analytics/overview")
 def overview(user:m.User=Depends(current_user),db:Session=Depends(get_db)):
+    services.mark_overdue(db,user.organization_id)
     rows=dict(db.execute(select(m.WorkflowExecution.status,func.count()).where(m.WorkflowExecution.organization_id==user.organization_id).group_by(m.WorkflowExecution.status)).all()); overdue=db.scalar(select(func.count()).select_from(m.Task).where(m.Task.organization_id==user.organization_id,m.Task.status==m.TaskStatus.overdue)) or 0
     return {"open":rows.get(m.ExecutionStatus.in_progress,0),"completed":rows.get(m.ExecutionStatus.completed,0),"rejected":rows.get(m.ExecutionStatus.rejected,0),"overdue":overdue}
-
